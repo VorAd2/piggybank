@@ -27,4 +27,16 @@ class UserModel extends Model{
 
         return $encPassword['senha'];
     }
+
+    // Método que verifica se existe um usuário no banco com o id informado
+    public function userExists($idUser): mixed {
+        // return $this->select()->where('id', $idUser)->find();
+        $res = $this->select()->find($idUser);
+
+        if(is_null($res)){
+            return false;
+        }
+
+        return $res;
+    }
 }
