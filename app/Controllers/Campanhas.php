@@ -71,7 +71,7 @@ class Campanhas extends ResourceController {
         $goal               = $data['goal']         ?? null;
         $received           = $data['received']     ?? 0;
         $description        = $data['description']  ?? null;
-        $fkIdDonoCampanha   = $data['fkIdOwner']    ?? null;
+        $fkIdDonoCampanha   = $data['idOwner']    ?? null;
         
 
         $thereisSomeFielEmpty = $this->isSomeValueNull([$title, $goal, $received, $description, $fkIdDonoCampanha]);
