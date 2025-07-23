@@ -25,10 +25,10 @@ DROP TABLE IF EXISTS `campanhas`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `campanhas` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `titulo` varchar(50) NOT NULL,
+  `titulo` varchar(255) DEFAULT NULL,
   `meta` decimal(8,2) NOT NULL,
   `recebido` decimal(8,2) DEFAULT 0.00,
-  `descricao` varchar(100) DEFAULT NULL,
+  `descricao` varchar(255) DEFAULT NULL,
   `fk_id_usuario_criador_campanha` int(10) unsigned DEFAULT NULL,
   `fk_id_entidade_criadora_campanha` int(10) unsigned DEFAULT NULL,
   `created_at` date NOT NULL DEFAULT current_timestamp(),
@@ -39,7 +39,7 @@ CREATE TABLE `campanhas` (
   CONSTRAINT `campanhas_ibfk_1` FOREIGN KEY (`fk_id_usuario_criador_campanha`) REFERENCES `users` (`id`),
   CONSTRAINT `campanhas_ibfk_2` FOREIGN KEY (`fk_id_entidade_criadora_campanha`) REFERENCES `users` (`id`),
   CONSTRAINT `CONSTRAINT_1` CHECK (`fk_id_usuario_criador_campanha` is not null or `fk_id_entidade_criadora_campanha` is not null)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,46 @@ CREATE TABLE `campanhas` (
 
 LOCK TABLES `campanhas` WRITE;
 /*!40000 ALTER TABLE `campanhas` DISABLE KEYS */;
+INSERT INTO `campanhas` VALUES
+(3,'Ajudar a custear a faculdade de Direito do Davi Brito',5000.00,1348.60,'Nosso Calabreso perdeu tudo e está morando de aluguel no Bom Jardim, nos ajude a realizarmos o sonho do nosso caro Davi Brito em conquistar uma certificação de curso superior',NULL,39,'2025-07-19','2025-07-20 17:01:11'),
+(4,'Vaquinha para comprar uma IA para o Taveira',1240.00,1020.00,'Nosso professor favorito precisa de uma LLM',38,NULL,'2025-07-22','2025-07-23 22:42:08');
 /*!40000 ALTER TABLE `campanhas` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `registro_doacoes`
+--
+
+DROP TABLE IF EXISTS `registro_doacoes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `registro_doacoes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fk_id_doador` int(10) unsigned NOT NULL,
+  `fk_id_campanha` int(11) NOT NULL,
+  `valor_doado` decimal(8,2) NOT NULL,
+  `created_at` date NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_id_doador` (`fk_id_doador`),
+  KEY `fk_id_campanha` (`fk_id_campanha`),
+  CONSTRAINT `registro_doacoes_ibfk_1` FOREIGN KEY (`fk_id_doador`) REFERENCES `users` (`id`),
+  CONSTRAINT `registro_doacoes_ibfk_2` FOREIGN KEY (`fk_id_campanha`) REFERENCES `campanhas` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `registro_doacoes`
+--
+
+LOCK TABLES `registro_doacoes` WRITE;
+/*!40000 ALTER TABLE `registro_doacoes` DISABLE KEYS */;
+INSERT INTO `registro_doacoes` VALUES
+(3,38,3,100.00,'2025-07-20','2025-07-20 17:00:47'),
+(4,39,3,1248.60,'2025-07-20','2025-07-20 17:01:11'),
+(5,38,4,900.00,'2025-07-22','2025-07-22 03:26:29'),
+(6,38,4,120.00,'2025-07-23','2025-07-23 22:42:08');
+/*!40000 ALTER TABLE `registro_doacoes` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -96,4 +135,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-18 21:16:57
+-- Dump completed on 2025-07-23 20:11:49
