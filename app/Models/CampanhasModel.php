@@ -17,9 +17,20 @@ class CampanhasModel extends Model{
     }
 
     // Método que verifica se existe um usuário no banco com o id informado
-    public function userExists($idUser): mixed {
+    public function campaignExists($idCampaign): mixed {
         // return $this->select()->where('id', $idUser)->find();
-        $res = $this->select()->find($idUser);
+        $res = $this->select()->find($idCampaign);
+        
+        if(is_null($res)){
+            return false;
+        }
+
+        return $res;
+    }
+
+    // Método para pegar o valor atual de dinheiro recebido em uma campanha
+    public function getCurrentValueReceived($idCampaign){
+        $res = $this->select('recebido')->find($idCampaign);
 
         if(is_null($res)){
             return false;

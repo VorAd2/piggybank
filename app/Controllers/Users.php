@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\RegistroDoacoesModel;
 use CodeIgniter\RESTful\ResourceController;
 use App\Traits\Validate;
 use Exception;
@@ -14,6 +15,7 @@ class Users extends ResourceController {
     protected $modelName = 'App\Models\UserModel';
     protected $format = 'json';
     protected $userModel;
+    protected $registroDoacoesModel;
     protected $defaultPfp;
 
 
@@ -24,6 +26,7 @@ class Users extends ResourceController {
     // construtor para injeção
     public function __construct(){
         $this->userModel = new UserModel();
+        $this->registroDoacoesModel = new RegistroDoacoesModel();
 
         $this->defaultPfp = base_url('img/default/default_pfp.png');
     }
@@ -228,10 +231,6 @@ class Users extends ResourceController {
             'pfp_img' => $useDefaultProfilePicture == true ? null : $newPfpName
         ];
 
-        var_dump($userData);
-        die();
-
-
         // Inserção do usuário no banco de dados
         
         if($this->userModel->insert($userData)){
@@ -382,5 +381,11 @@ class Users extends ResourceController {
             return $this->response->setJSON(['error' => 'Erro ao criar entidade!']);
         }
         
+    }
+
+    // rota com uns joins aí
+    public function superGet(){
+        $data = $this->userModel->superGet();
+        return $this->response->setJSON($data);
     }
 }

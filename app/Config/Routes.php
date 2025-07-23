@@ -9,7 +9,7 @@ use Config\App;
 $routes->get('/', 'Home::index');
 
 // Rotas da api
-$routes->get('users', 'Users::index');
+// $routes->get('users', 'Users::index');
 $routes->get('campanhas', 'Campanhas::index');
 // $routes->get('entidades', 'Entidades::index');
 
@@ -48,7 +48,16 @@ $routes->post('users/login', 'Users::login');
 $routes->options('login', function () {
     return service('response')->setStatusCode(200);
 });
-$routes->post('entidades/login', 'Users::login');
-$routes->options('login', function () {
-    return service('response')->setStatusCode(200);
+// $routes->post('entidades/login', 'Users::login');
+// $routes->options('login', function () {
+//     return service('response')->setStatusCode(200);
+// });
+
+//Rota para realizar a doação
+$routes->post('/donate', 'Campanhas::donate');
+$routes->options('donate', function () {
+    return service('respose')->setStatusCode(200);
 });
+
+// Rota com uns joins que o front end pediu
+$routes->get('users/', 'Users::superGet');
