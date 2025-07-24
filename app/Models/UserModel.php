@@ -64,9 +64,9 @@ class UserModel extends Model{
                 campanhas.created_at AS campanha_aberta_em,
                 registro_doacoes.valor_doado AS valor_doado,
                 registro_doacoes.created_at AS data_de_doacao
-            FROM registro_doacoes
-            JOIN users ON users.id = registro_doacoes.fk_id_doador
-            JOIN campanhas ON campanhas.id = registro_doacoes.fk_id_campanha
+            FROM users
+            LEFT JOIN registro_doacoes ON users.id = registro_doacoes.fk_id_doador
+            LEFT JOIN campanhas ON campanhas.id = registro_doacoes.fk_id_campanha
         ";
 
         $query  = $this->db->query($sql);
