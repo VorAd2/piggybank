@@ -17,6 +17,42 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(80) NOT NULL,
+  `tel` varchar(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `cpf` varchar(11) DEFAULT NULL,
+  `senha` varchar(72) NOT NULL,
+  `pfp_img` varchar(100) DEFAULT NULL,
+  `bio` varchar(120) DEFAULT NULL,
+  `created_at` date NOT NULL DEFAULT current_date(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `cnpj` varchar(14) DEFAULT NULL,
+  `is_entidade` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES
+(38,'não aguento mais','85992996658','debug@user.com','07831563299','$2y$10$Ro8KNF9yUmuuYxPDOCwjR.VCws8b0JrMgAQ0y6Qu3v9r9sI.iswBC',NULL,NULL,'2025-07-18','2025-07-18 17:44:03',NULL,0),
+(39,'TESTE ENTIDADE','85992996654','debug@entidade.com',NULL,'$2y$10$38Y7c6rAuPvkE/9Hgg71LuOQthSS9eHwakrUfKVJBa7J1ZL3VcRL.',NULL,NULL,'2025-07-19','2025-07-19 03:12:58','67345699900012',1);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `campanhas`
 --
 
@@ -29,16 +65,18 @@ CREATE TABLE `campanhas` (
   `meta` decimal(8,2) NOT NULL,
   `recebido` decimal(8,2) DEFAULT 0.00,
   `descricao` varchar(255) DEFAULT NULL,
-  `fk_id_usuario_criador_campanha` int(10) unsigned DEFAULT NULL,
-  `fk_id_entidade_criadora_campanha` int(10) unsigned DEFAULT NULL,
-  `created_at` date NOT NULL DEFAULT current_timestamp(),
+  `fk_id_usuario_criador_campanha` int(11) unsigned DEFAULT NULL,
+  `fk_id_entidade_criadora_campanha` int(11) unsigned DEFAULT NULL,
+  `created_at` date NOT NULL DEFAULT current_date(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `fk_id_usuario_criador_campanha` (`fk_id_usuario_criador_campanha`),
   KEY `fk_id_entidade_criadora_campanha` (`fk_id_entidade_criadora_campanha`),
   CONSTRAINT `campanhas_ibfk_1` FOREIGN KEY (`fk_id_usuario_criador_campanha`) REFERENCES `users` (`id`),
   CONSTRAINT `campanhas_ibfk_2` FOREIGN KEY (`fk_id_entidade_criadora_campanha`) REFERENCES `users` (`id`),
-  CONSTRAINT `CONSTRAINT_1` CHECK (`fk_id_usuario_criador_campanha` is not null or `fk_id_entidade_criadora_campanha` is not null)
+  CONSTRAINT `chk_algum_criador` CHECK (
+    `fk_id_usuario_criador_campanha` IS NOT NULL OR `fk_id_entidade_criadora_campanha` IS NOT NULL
+  )
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -66,7 +104,7 @@ CREATE TABLE `registro_doacoes` (
   `fk_id_doador` int(10) unsigned NOT NULL,
   `fk_id_campanha` int(11) NOT NULL,
   `valor_doado` decimal(8,2) NOT NULL,
-  `created_at` date NOT NULL DEFAULT current_timestamp(),
+  `created_at` date NOT NULL DEFAULT current_date(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `fk_id_doador` (`fk_id_doador`),
@@ -90,43 +128,7 @@ INSERT INTO `registro_doacoes` VALUES
 /*!40000 ALTER TABLE `registro_doacoes` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `users`
---
-
-DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(80) NOT NULL,
-  `tel` varchar(11) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `cpf` varchar(11) DEFAULT NULL,
-  `senha` varchar(72) NOT NULL,
-  `pfp_img` varchar(100) DEFAULT NULL,
-  `bio` varchar(120) DEFAULT NULL,
-  `created_at` date NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `cnpj` varchar(14) DEFAULT NULL,
-  `is_entidade` tinyint(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES
-(38,'não aguento mais','85992996658','debug@user.com','07831563299','$2y$10$Ro8KNF9yUmuuYxPDOCwjR.VCws8b0JrMgAQ0y6Qu3v9r9sI.iswBC',NULL,NULL,'2025-07-18','2025-07-18 17:44:03',NULL,0),
-(39,'TESTE ENTIDADE','85992996654','debug@entidade.com',NULL,'$2y$10$38Y7c6rAuPvkE/9Hgg71LuOQthSS9eHwakrUfKVJBa7J1ZL3VcRL.',NULL,NULL,'2025-07-19','2025-07-19 03:12:58','67345699900012',1);
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
