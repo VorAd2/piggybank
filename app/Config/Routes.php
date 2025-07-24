@@ -45,7 +45,7 @@ $routes->options('campanhas/create', function () {
 
 //Rota de login
 $routes->post('users/login', 'Users::login');
-$routes->options('login', function () {
+$routes->options('users/login', function () {
     return service('response')->setStatusCode(200);
 });
 // $routes->post('entidades/login', 'Users::login');
