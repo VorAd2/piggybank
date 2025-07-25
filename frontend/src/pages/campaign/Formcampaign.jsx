@@ -88,6 +88,7 @@ export default function NovaCampanha() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  
   return (
     <div className="nova-campanha-page">
       {submissionSuccess && (

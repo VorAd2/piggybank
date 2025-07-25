@@ -100,9 +100,9 @@ function Profile() {
         style={{cursor: 'pointer'}}
         onClick={() => handleCampaignClick(c)}
       >
-          {c.titulo}{" "}
+          {forEntity ? c.titulo : c.titulo_campanha}{" "}
           <span className="badge text-dark bg-warning">
-            {c.recebido}
+            {forEntity ? c.recebido : c.valor_doado}
           </span>
       </li>
     ))

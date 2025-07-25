@@ -1,9 +1,11 @@
-/* eslint-disable no-unused-vars */
 import { earthImage } from "../../assets";
 import { GeoIcon, PersonOutlineIcon } from "../../assets";
-import { Container, Row, Col, Spinner, ProgressBar } from "react-bootstrap";
-import { useParams, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Container, Row, Col, Spinner } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { DonationModal } from '../../components';
+import axios from 'axios';
+const BACK_URL = import.meta.env.VITE_BACK_URL;
 
 const paragraf = `
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam euismod laoreet ipsum nec auctor.
@@ -17,13 +19,17 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam euismod laoreet
 
 function CampaignInfo() {
     const location = useLocation()
-    const campaign = location.state?.data
     const withHelp = location.state?.withHelp
-    const recebido = campaign.recebido
-    const meta = campaign.meta
+    const campaignId = withHelp ? location.state?.data.id_campanha_apoiada : location.state?.data.id
+
+    const [campaign, setCampaign] = useState({});
+    const profileData = JSON.parse(localStorage.getItem('UserData'))
+    const [showDonationModal, setShow] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const navigate = useNavigate()
 
     const fixedPercent = () =>
-        Math.min(100, ((recebido / meta) * 100).toFixed(2));
+        Math.min(100, ((campaign.recebido / campaign.meta) * 100).toFixed(2));
 
     function getPrincipalPanel() {
         return (
@@ -49,13 +55,13 @@ function CampaignInfo() {
                     style={{fontWeight:'1000', fontSize: '32px', 
                         color: 'var(--secondary-color)'}}
                 >
-                    R${recebido}
+                    R${campaign.recebido}
                 </p>
                 <div id="principalInfoPanelSubtitles">
-                    <p>Meta: R${meta}</p>
+                    <p>Meta: R${campaign.meta}</p>
                     <p>Apoiadores: 6</p>
                 </div>
-                { withHelp ? <button className="wantHelpBtn" type="button">QUERO AJUDAR</button> : null }
+                { withHelp ? <button className="wantHelpBtn" type="button" onClick={handleClick}>QUERO AJUDAR</button> : null }
                 <hr className="principalInfoPanelHr"/>
                 <div className="d-flex">
                     <PersonOutlineIcon style={{width:'25px', height:'25px', color:'#79747E'}} className='me-3'/>
@@ -75,40 +81,79 @@ function CampaignInfo() {
         )
     }
 
-    return (
-        <Container className="px-5 py-3" style={{marginTop: '80px'}}>
-            <Row className="mb-5">
-                <div className="d-flex flex-column justify-content-center align-items-center g-3">
-                    <h1 
-                    style={{fontSize: '48px', fontWeight:'900', color:'var(--primary-color)'}} 
-                    >
-                        {campaign.titulo}</h1>
-                    <p 
-                    style={{fontSize:'20px', fontWeight:'700', color:'var(--primary-color'}} 
-                    > 
-                        <GeoIcon style={{color:'#45414A'}}/> Fortaleza/Ceará
-                    </p>
-                </div>
-            </Row>
-            <Row className="g-5 mb-4">
-                <Col md={8} className="p-0"> 
-                    <img
-                    className="campaignInfoImage"
-                    src={earthImage} 
-                    alt="imagem-campanha" 
-                    />
-                </Col>
-                <Col md={4} className="p-0">
-                    {getPrincipalPanel()}
-                </Col>
-            </Row>
-            <Row className="g-5">
-                <Col md={6} className="p-0"> <p>{paragraf}</p> </Col>
-                <Col md={6}> <p>{paragraf}</p> </Col>
-            </Row>
-        </Container>
-    )
+    const handleClick = () => {
+        if (profileData) {
+            setShow(true)
+        } else {
+            navigate('/login/usuario')
+        }
+    }
 
+    useEffect(() => {
+        const fetchCamp = async () => {
+            const response = await axios.get(`${BACK_URL}/campanhas`)
+            const data = response.data
+            for (let camp of data) {
+                if (camp.id === campaignId) {
+                    setCampaign(camp)
+                }
+            }
+            setIsLoading(false)
+        }
+        fetchCamp()
+    })
+    
+    function getSpinner() {
+        return (
+        <>
+            <Container className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <Spinner animation="grow" role="status">
+                    <span className="visually-hidden">Carregando...</span>
+                </Spinner>
+            </Container>
+        </>
+        )
+    }
+
+    if (isLoading) return getSpinner()
+
+    return (
+        <>
+            <Container className="px-5 py-3" style={{marginTop: '80px'}}>
+                <Row className="mb-5">
+                    <div className="d-flex flex-column justify-content-center align-items-center g-3">
+                        <h1 
+                        style={{fontSize: '48px', fontWeight:'900', color:'var(--primary-color)'}} 
+                        >
+                            {campaign.titulo}</h1>
+                        <p 
+                        style={{fontSize:'20px', fontWeight:'700', color:'var(--primary-color'}} 
+                        > 
+                            <GeoIcon style={{color:'#45414A'}}/> Fortaleza/Ceará
+                        </p>
+                    </div>
+                </Row>
+                <Row className="g-5 mb-4">
+                    <Col md={8} className="p-0"> 
+                        <img
+                        className="campaignInfoImage"
+                        src={earthImage} 
+                        alt="imagem-campanha" 
+                        />
+                    </Col>
+                    <Col md={4} className="p-0">
+                        {getPrincipalPanel()}
+                    </Col>
+                </Row>
+                <Row className="g-5">
+                    <Col md={6} className="p-0"> <p>{paragraf}</p> </Col>
+                    <Col md={6}> <p>{paragraf}</p> </Col>
+                </Row>
+            </Container>
+
+        <DonationModal show={showDonationModal} campaignId={campaign.id} donatorId={profileData?.id_usuario} onHide={() => setShow(false)}/>
+        </>
+    )
 }
 
 export default CampaignInfo;
