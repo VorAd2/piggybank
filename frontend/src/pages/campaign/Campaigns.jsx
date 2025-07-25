@@ -10,6 +10,8 @@ function Campaigns() {
   const [hidePB, setHidePB] = useState(false);
   const [isLoading, setLoading] = useState(true);
   const [campaignsList, setCampaignsList] = useState([])
+  const entityData = JSON.parse(localStorage.getItem('EntityData'))
+  const isEntity = entityData !== null
 
 
   useEffect(() => {
@@ -62,7 +64,7 @@ function Campaigns() {
             <Button className="filtering-btn fs-5">Filtros</Button>
           </InputGroup>
         </div>
-        <CampaignsList campaigns={campaignsList}/>
+        <CampaignsList campaigns={campaignsList} withHelp={!isEntity}/>
       </>
     )
   }

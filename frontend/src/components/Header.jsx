@@ -2,11 +2,13 @@ import { useEffect, useState, useContext } from "react";
 import { useLocation, Link } from "react-router-dom";
 import logo from "../assets/pb logo.png";
 import { ProfileContext } from "../contexts/ProfileContext";
+import { EntityIcon } from "../assets";
 
 function Header() {
   const [hideNav, setHideNav] = useState(false);
   const location = useLocation();
-  const { profileData } = useContext(ProfileContext);
+  const forEntity = localStorage.getItem('profileType') === 'entity'
+  const profileData = localStorage.getItem(forEntity ? 'EntityData' : 'UserData');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,11 +38,14 @@ function Header() {
   };
 
   function verifyProfileLink() {
+    const Icon = forEntity
+      ? <i> <EntityIcon/> </i>
+      : <i className="bi bi-person-circle fs-4"></i>
     if (profileData) {
       return (
         <li className="nav-item me-1">
           <Link to="/perfil" className="nav-link text-light">
-            <i className="bi bi-person-circle fs-4"></i>
+            {Icon}
           </Link>
         </li>
       )

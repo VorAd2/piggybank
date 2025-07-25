@@ -143,4 +143,32 @@ trait Validate {
         // Se tiver mandado, retorna 0
         return $useDefaultProfilePicture;
     }
+
+    // Sanitizando CNPJ alfanumerico
+    public function sanitizeCNPJ(string $cnpj): string {
+
+        // removendo os caracteres indesejados
+        $cnpj = str_replace(' ', '', $cnpj);
+        $cnpj = str_replace('.', '', $cnpj);
+        $cnpj = str_replace('-', '', $cnpj);
+        $cnpj = str_replace('/', '', $cnpj);
+
+        return $cnpj;
+    }
+
+    // Validando CNPJ
+    // Nesse caso, vai ser uma validação bem da fuleragem,
+    // Vou só checar se o tamanho está certo e retornar true
+    public function isAValidCNPJ(string $cnpj): bool {
+
+        
+        $cnpjLenght = strlen($cnpj);
+
+        if($cnpjLenght !== 14){
+            return false;
+        }
+
+        return true;
+
+    }
 }

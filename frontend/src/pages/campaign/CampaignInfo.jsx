@@ -18,36 +18,26 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam euismod laoreet
 function CampaignInfo() {
     const location = useLocation()
     const campaign = location.state?.data
+    const withHelp = location.state?.withHelp
     const recebido = campaign.recebido
     const meta = campaign.meta
-    const [isLoading, setIsLoading] = useState(true);
 
     const fixedPercent = () =>
         Math.min(100, ((recebido / meta) * 100).toFixed(2));
 
-    useEffect(() => {
-        //simula req via axios, usando id da campanha
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 1000);
-    })
-
-    if (isLoading) {
-        return (
-            <Container className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-                <Spinner animation="grow" role="status">
-                    <span className="visually-hidden">Carregando...</span>
-                </Spinner>
-            </Container>
-        );
-    }
-
     function getPrincipalPanel() {
         return (
             <div className="principalInfoPanel d-flex flex-column gap-1 justify-content-start align-items-start">
-                <ProgressBar now={recebido} max={meta} label={`${fixedPercent()}%`} 
-                    className="principalInfoPanelPrgBar w-100 mb-2"
-                />
+                <div className="progress-and-text mt-2">
+                    <progress
+                        max={campaign.meta}
+                        value={campaign.recebido}
+                        className="progress"
+                    />
+                    <span className="progress-percentage">
+                        {fixedPercent(campaign)}%
+                    </span>
+                </div>
                 <h5
                     style={{fontSize: '20px', fontWeight: '600', 
                         color: 'var(--primary-color)', marginBottom:'0'}}
@@ -65,9 +55,7 @@ function CampaignInfo() {
                     <p>Meta: R${meta}</p>
                     <p>Apoiadores: 6</p>
                 </div>
-                <button className="wantHelpBtn" type="button">
-                    QUERO AJUDAR
-                </button>
+                { withHelp ? <button className="wantHelpBtn" type="button">QUERO AJUDAR</button> : null }
                 <hr className="principalInfoPanelHr"/>
                 <div className="d-flex">
                     <PersonOutlineIcon style={{width:'25px', height:'25px', color:'#79747E'}} className='me-3'/>

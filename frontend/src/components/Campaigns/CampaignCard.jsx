@@ -1,13 +1,14 @@
+/* eslint-disable react/prop-types */
 import { GeoIcon, TrashIcon }from '../../assets/index'
 import earthImage from "../../assets/earth.jpg";
 import {Button} from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
-function CampaignCard({ campanha, withDelete}) {
+function CampaignCard({ campanha, withDelete, withHelp}) {
     const navigate = useNavigate()
 
     const handleClick = () => {
-        navigate('/campanha', {state: {data: campanha}})
+        navigate('/campanha', {state: {data: campanha, withHelp: withHelp}})
     }
 
     const porcentagemArrecadado = (campanha) =>

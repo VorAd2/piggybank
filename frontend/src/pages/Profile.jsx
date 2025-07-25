@@ -1,29 +1,72 @@
-import { userData } from "../data/data";
+import { userData as userInfoMock} from "../data/data";
 import { body } from "../data/data";
 import { useEffect, useState, useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ProfileContext } from "../contexts/ProfileContext";
+import { Container, Spinner } from "react-bootstrap";
+import styles from '../styles/ProfilePage.module.css'
+import axios from 'axios';
+const BACK_URL = import.meta.env.VITE_BACK_URL
 
 function Profile() {
   const {
     username,
-    since,
     bio,
     email,
     interests,
     notifications,
     activity,
-    recentCampaigns,
-  } = userData;
-
-  const [avatar, setAvatar] = useState(userData.avatar);
+  } = userInfoMock;
+  const [avatar, setAvatar] = useState(userInfoMock.avatar);
   const [showEditModal, setShowEditModal] = useState(false);
   const [hidePB, setHidePB] = useState(false);
-
-  const location = useLocation();
-  const forEntity = location.state.forEntity;
-  const { profileData, clearProfileData } = useContext(ProfileContext);
+  const [isLoading, setIsLoading] = useState(true)
   const navigate = useNavigate();
+  
+  const profileType = localStorage.getItem('profileType')
+  const forEntity = profileType === 'entity';
+  const profileData = JSON.parse(localStorage.getItem(forEntity ? 'EntityData' : 'UserData'))
+  const [campaigns, setCampaigns] = useState([])
+  const { clearProfileData } = useContext(ProfileContext);
+
+  async function fetchCampForDonator() {
+    try {
+      const response = await axios.get(`${BACK_URL}/users`)
+      const data = response.data
+      let control = []
+      for (let user of data) {
+        if (user.id_usuario === profileData.id_usuario) {
+          for (let c of user.campanhas) {
+            control.push(c)
+          }
+        }
+      }
+      setCampaigns(control)
+    } catch(err) {
+      console.warn(`Erro ao consultar campanhas do perfil: ${err}`)
+    }finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function fetchCampForEntity() {
+    try {
+      const response = await axios.get(`${BACK_URL}/campanhas`)
+      const data = response.data
+      console.log(`data: ${JSON.stringify(data, null, 2)}`)
+      let control = []
+      for (let camp of data) {
+        if (camp.fk_id_entidade_criadora_campanha == profileData.id_usuario){
+          control.push(camp)
+        }
+      }
+      setCampaigns(control)
+    } catch(err) {
+      console.warn(`Erro ao consultar campanhas do perfil: ${err}`)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   useEffect(() => {
     window.scrollTo(0,0)
@@ -31,7 +74,8 @@ function Profile() {
       const scrollTop = window.scrollY;
       setHidePB(scrollTop > 100);
     };
-
+    console.log(`profileData: ${JSON.stringify(profileData, null, 2)}`)
+    forEntity ? fetchCampForEntity() : fetchCampForDonator()
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -41,33 +85,43 @@ function Profile() {
     navigate('/')
   }
 
-  return (
-    <>
-      <section id="div1" className="d-flex align-items-start text-white">
-        <div
-          className="overlay"
-          style={{
-            backgroundImage: `url(${body.bg3})`,
-            backgroundPosition: "center",
-          }}
-        />
+  const handleCampaignClick = (camp) => {
+    navigate('/campanha', {state: {data: camp, withHelp: !forEntity}})
+  }
 
-        <div className="content container-fluid m-5 p-5">
-          <div className="row mt-5">
-            <div id="pb" className={`col-md-6 mt-5 ${hidePB ? "hidden" : ""}`}>
-              <img
-                src={avatar}
-                className="rounded-circle mb-3"
-                alt="Foto do usuário"
-                width={"200px"}
-                height={"200px"}
-              />
-              <h1 className="display-3">{profileData.name}</h1>
-            </div>
-          </div>
-        </div>
-      </section>
+  function getCampaignsSection() {
+    if (campaigns.length === 0) {
+      return <span>Nenhum campanha até o momento</span>
+    }
+    return campaigns.map((c, i) => (
+      <li
+        key={i}
+        className={`list-group-item d-flex justify-content-between align-items-center ${styles.campaign}`}
+        style={{cursor: 'pointer'}}
+        onClick={() => handleCampaignClick(c)}
+      >
+          {c.titulo}{" "}
+          <span className="badge text-dark bg-warning">
+            {c.recebido}
+          </span>
+      </li>
+    ))
+  }
 
+  function getSpinner() {
+    return (
+      <>
+        <Container className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <Spinner animation="grow" role="status">
+              <span className="visually-hidden">Carregando...</span>
+          </Spinner>
+        </Container>
+      </>
+    )
+  }
+
+  function getMainSection() {
+    return (
       <section className="p-5 bgsecclr">
         <div className="container">
           <div className="row g-4">
@@ -83,14 +137,13 @@ function Profile() {
                   height={"200px"}
                   alt="avatar" 
                   />
-                  <h4 className="card-title">{profileData.name}</h4>
-                  <p className="text-muted"> {profileData.created_at ?? 'sem_data'}</p>
+                  <h4 className="card-title">{profileData.nome_usuario}</h4>
                   <p>{bio}</p>
                   <button
                     className="btn btn-outline-warning w-100 mt-3"
                     onClick={() => setShowEditModal(true)}
                   >
-                    {userData.btn}
+                    {userInfoMock.btn}
                   </button>
                   <button 
                   className="btn btn-outline-danger w-100 mt-3"
@@ -108,7 +161,7 @@ function Profile() {
                   className="card-header text-white"
                   style={{ backgroundColor: "rgb(15, 55, 63)" }}
                 >
-                  <strong>{userData.mainDesc}</strong>
+                  <strong>{userInfoMock.mainDesc}</strong>
                 </div>
                 <div className="card-body">
                   <div className="row text-center">
@@ -133,21 +186,11 @@ function Profile() {
                   className="card-header text-white"
                   style={{ backgroundColor: "rgb(15, 55, 63)" }}
                 >
-                  <strong>{forEntity ? userData.desc2 : userData.desc1}</strong>
+                  <strong>{forEntity ? userInfoMock.desc2 : userInfoMock.desc1}</strong>
                 </div>
                 <div className="card-body">
                   <ul className="list-group list-group-flush">
-                    {recentCampaigns.map((c, i) => (
-                      <li
-                        key={i}
-                        className="list-group-item d-flex justify-content-between align-items-center"
-                      >
-                        {c.title}{" "}
-                        <span className="badge text-dark bg-warning">
-                          {c.amount}
-                        </span>
-                      </li>
-                    ))}
+                    {getCampaignsSection()}
                   </ul>
                 </div>
               </div>
@@ -157,7 +200,7 @@ function Profile() {
                   className="card-header text-white"
                   style={{ backgroundColor: "rgb(15, 55, 63)" }}
                 >
-                  <strong>{userData.desc3}</strong>
+                  <strong>{userInfoMock.desc3}</strong>
                 </div>
                 <div className="card-body">
                   <p>
@@ -168,7 +211,7 @@ function Profile() {
                     {notifications ? "Ativadas" : "Desativadas"}
                   </p>
                   <p>
-                    <strong>Contato:</strong> {profileData.email}
+                    <strong>Contato:</strong> {profileData.email_usuario}
                   </p>
                 </div>
               </div>
@@ -176,6 +219,40 @@ function Profile() {
           </div>
         </div>
       </section>
+    )
+  }
+
+  if (!profileData) return null;
+
+  
+  return (
+    <>
+      <section id="div1" className="d-flex align-items-start text-white">
+        <div
+          className="overlay"
+          style={{
+            backgroundImage: `url(${body.bg3})`,
+            backgroundPosition: "center",
+          }}
+        />
+
+        <div className="content container-fluid m-5 p-5">
+          <div className="row mt-5">
+            <div id="pb" className={`col-md-6 mt-5 ${hidePB ? "hidden" : ""}`}>
+              <img
+                src={avatar}
+                className="rounded-circle mb-3"
+                alt="Foto do usuário"
+                width={"200px"}
+                height={"200px"}
+              />
+              <h1 className="display-3">{profileData.nome_usuario}</h1>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {isLoading ? getSpinner() : getMainSection()}
 
       {showEditModal && (
         <div

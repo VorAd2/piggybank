@@ -1,57 +1,87 @@
-import { useRef, useContext, useState, useEffect } from "react";
-import { AuthContext } from "../../contexts/AuthContext";
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-//tera alteracoes com o back, pois ta usando um user do authcontext
+import axios from 'axios';
+const BACK_URL = import.meta.env.VITE_BACK_URL
 
 export default function NovaCampanha() {
-  const form = useRef();
-  const { usuario } = useContext(AuthContext);
-  const [sucesso, setSucesso] = useState(false);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
-  const [imagemTipo, setImagemTipo] = useState("upload"); // 'upload' ou 'url'
-  const [imagemPreview, setImagemPreview] = useState(null);
+  // Form fields
+  const [campaignTitle, setCampaignTitle] = useState("");
+  const [campaignLocation, setCampaignLocation] = useState("");
+  const [fundraisingGoal, setFundraisingGoal] = useState("");
+  const [description, setDescription] = useState("");
+  const [pixKey, setPixKey] = useState("");
 
+  const [imageType, setImageType] = useState("upload"); // 'upload' or 'url'
+  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
   const navigate = useNavigate();
+  const entityId = JSON.parse(localStorage.getItem('EntityData')).id_usuario
 
-  const enviarCampanha = (e) => {
+  const resetForm = () => {
+    setCampaignTitle("");
+    setCampaignLocation("");
+    setFundraisingGoal("");
+    setDescription("");
+    setPixKey("");
+    setImageType("upload");
+    setImagePreview(null);
+    setImageFile(null);
+    setImageUrl("");
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = new FormData(form.current);
-
-    //INTEGRAR AINDA
-
-    console.log("Dados da campanha:", Object.fromEntries(formData));
-
-    setSucesso(true);
-    form.current.reset();
-    setImagemPreview(null);
-
-    setTimeout(() => {
-      navigate("/divulgue");
-    }, 2000);
-  };
-
-  const handleImagemUploadChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagemPreview(URL.createObjectURL(file));
-    } else {
-      setImagemPreview(null);
+    console.log(`entityId: ${entityId}`)
+    const newCamp = {
+      title: campaignTitle,
+      goal: fundraisingGoal,
+      received: 0,
+      description: description,
+      idOwner: entityId,
+    }
+    try {
+      const route = `${BACK_URL}/campanhas/create`
+      const config = {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      const response = await axios.post(route, newCamp, config)
+      console.log(`response: ${JSON.stringify(response, null, 2)}`)
+      setSubmissionSuccess(true);
+      resetForm();
+    } catch (err) {
+      console.warm(`Erro ao cadastrar campanha: ${err}`)
     }
   };
 
-  const handleImagemUrlChange = (e) => {
-    const url = e.target.value;
-    setImagemPreview(url);
+  const handleImageUploadChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+    }
   };
 
-  const [hidePB, setHidePB] = useState(false);
+  const handleImageUrlChange = (e) => {
+    const url = e.target.value;
+    setImageUrl(url);
+    setImagePreview(url);
+  };
+
+  const [hidePb, setHidePb] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
-      setHidePB(scrollTop > 0);
+      setHidePb(scrollTop > 0);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -60,7 +90,7 @@ export default function NovaCampanha() {
 
   return (
     <div className="nova-campanha-page">
-      {sucesso && (
+      {submissionSuccess && (
         <div className="success-overlay">
           <div className="success-modal">
             <p className="success-text">🎉 Campanha criada com sucesso!</p>
@@ -71,7 +101,7 @@ export default function NovaCampanha() {
       <div
         id="pb"
         className={`mt-5 container d-flex flex-column align-items-center justify-content-center ${
-          hidePB ? "hidden" : ""
+          hidePb ? "hidden" : ""
         }`}
       >
         <div className="form-header text-center">
@@ -80,9 +110,7 @@ export default function NovaCampanha() {
         </div>
 
         <div className="form-container">
-          <form ref={form} onSubmit={enviarCampanha}>
-            <input type="hidden" name="name" value={usuario?.username} />
-            <input type="hidden" name="email" value={usuario?.email} />
+          <form onSubmit={handleSubmit}>
 
             <div className="mb-3">
               <label className="form-label">Título da campanha:</label>
@@ -91,6 +119,8 @@ export default function NovaCampanha() {
                 name="titulo"
                 className="form-control"
                 placeholder="Ex: Projeto de doações"
+                value={campaignTitle}
+                onChange={(e) => setCampaignTitle(e.target.value)}
                 required
               />
             </div>
@@ -102,6 +132,8 @@ export default function NovaCampanha() {
                 name="local"
                 className="form-control"
                 placeholder="Cidade / Estado"
+                value={campaignLocation}
+                onChange={(e) => setCampaignLocation(e.target.value)}
                 required
               />
             </div>
@@ -113,6 +145,8 @@ export default function NovaCampanha() {
                 name="meta"
                 className="form-control"
                 placeholder="Ex: 1000"
+                value={fundraisingGoal}
+                onChange={(e) => setFundraisingGoal(e.target.value)}
                 required
               />
             </div>
@@ -124,11 +158,13 @@ export default function NovaCampanha() {
                 rows="4"
                 className="form-control"
                 placeholder="Conte mais sobre sua campanha"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 required
               ></textarea>
             </div>
 
-            {/* Imagem com botões estilo original */}
+
             <div className="mb-3">
               <label className="form-label">Imagem: </label>
               <div
@@ -142,10 +178,11 @@ export default function NovaCampanha() {
                   name="imagemTipo"
                   id="uploadRadio"
                   autoComplete="off"
-                  checked={imagemTipo === "upload"}
+                  checked={imageType === "upload"}
                   onChange={() => {
-                    setImagemTipo("upload");
-                    setImagemPreview(null);
+                    setImageType("upload");
+                    setImagePreview(null);
+                    setImageUrl("");
                   }}
                 />
                 <label
@@ -161,10 +198,11 @@ export default function NovaCampanha() {
                   name="imagemTipo"
                   id="urlRadio"
                   autoComplete="off"
-                  checked={imagemTipo === "url"}
+                  checked={imageType === "url"}
                   onChange={() => {
-                    setImagemTipo("url");
-                    setImagemPreview(null);
+                    setImageType("url");
+                    setImagePreview(null);
+                    setImageFile(null);
                   }}
                 />
                 <label className="btn btn-outline-primary" htmlFor="urlRadio">
@@ -172,13 +210,13 @@ export default function NovaCampanha() {
                 </label>
               </div>
 
-              {imagemTipo === "upload" ? (
+              {imageType === "upload" ? (
                 <input
                   type="file"
                   name="imagemUpload"
                   accept="image/*"
                   className="form-control"
-                  onChange={handleImagemUploadChange}
+                  onChange={handleImageUploadChange}
                   required
                 />
               ) : (
@@ -187,14 +225,15 @@ export default function NovaCampanha() {
                   name="imagemUrl"
                   className="form-control"
                   placeholder="Cole o link da imagem"
-                  onChange={handleImagemUrlChange}
+                  value={imageUrl}
+                  onChange={handleImageUrlChange}
                   required
                 />
               )}
 
-              {imagemPreview && (
+              {imagePreview && (
                 <img
-                  src={imagemPreview}
+                  src={imagePreview}
                   alt="Preview"
                   className="img-preview mt-2"
                 />
@@ -209,6 +248,8 @@ export default function NovaCampanha() {
                 name="pix"
                 className="form-control"
                 placeholder="Digite sua chave PIX"
+                value={pixKey}
+                onChange={(e) => setPixKey(e.target.value)}
                 required
               />
             </div>

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Header, Footer, Carousel } from "./components/index.js";
 import "./styles/index.css";
 import "./styles/Cadastro.css";
-import "./styles/Homepage.css";
+import "./styles/HomePage.css";
 import "./styles/CampaignInfo.css";
 import "./styles/CampaignsPage.css";
 import "./styles/FormCampaign.css";
@@ -11,14 +11,14 @@ import {
   Support,
   Body,
   News,
-  Cadastro,
+  Signup,
   Signin,
   Profile,
   CampaignInfo,
   Formcampaign,
   Publishcampaign,
 } from "./pages";
-import { ProfileProvider } from "./contexts/ProfileContext.js";
+import { ProfileProvider } from "./contexts/ProfileContext.jsx";
 
 function App() {
   return (
@@ -40,7 +40,7 @@ function App() {
               <Route path="/campanhas" element={<Campaigns />} />
               <Route path="/divulgue" element={<Publishcampaign />} />
               <Route path="/suporte" element={<Support />} />
-              <Route path="/cadastro/:tipo" element={<Cadastro />} />
+              <Route path="/cadastro/:tipo" element={<Signup />} />
               <Route path="/login/:tipo" element={<Signin />} />
               <Route path="/perfil" element={<Profile />} />
               <Route path="/campanha" element={<CampaignInfo />} />

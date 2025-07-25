@@ -158,7 +158,7 @@ export default function Support() {
             <i className="bi bi-envelope-fill"></i>
           </a>
           <a
-            href="https://github.com/VorAd2/piggybank"
+            href="https://github.com/oestrangeiro/piggybank"
             target="_blank"
             rel="noreferrer"
             className="text-light"

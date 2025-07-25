@@ -1,49 +1,20 @@
-import { Button } from "react-bootstrap";
+import { Container, Button, Spinner } from "react-bootstrap";
 import { CampaignsList, ScrollTopButton } from "../../components/index";
 import { body, publishCamp } from "../../data/data";
 import { useEffect, useState } from "react";
-import {earthImage} from "../../assets";
 import { useNavigate } from "react-router-dom";
 import "../../styles/PublishCampaign.css";
+import axios from 'axios'
+const BACK_URL = import.meta.env.VITE_BACK_URL
 
 function PublishCampaign() {
   const [hideHeroText, setHideHeroText] = useState(false);
-  const EntityData = localStorage.getItem('EntityData')
+  const [isLoading, setIsLoading] = useState(true)
+  const [campaigns, setCampaigns] = useState([])
+  const EntityData = JSON.parse(localStorage.getItem('EntityData'))
   const isEntity = EntityData != null
+  const entityId = isEntity && EntityData.id_usuario
   const navigate = useNavigate()
-
-  const [userCampaigns, setUserCampaigns] = useState([
-    {
-      id: 1,
-      titulo: "A calopsita Nina",
-      local: " Cidade / Estado",
-      meta: 2500,
-      arrecadado: 1000,
-      descricao: "Calopsita com insuficiência renal.",
-      imagem: earthImage,
-      entidade: "Entidade X",
-    },
-    {
-      id: 2,
-      titulo: "Cãozinho Thor",
-      local: "Cidade / Estado",
-      meta: 4000,
-      arrecadado: 2100,
-      descricao: "Tratamento de doença rara.",
-      imagem: earthImage,
-      entidade: "Entidade Y",
-    },
-    {
-      id: 3,
-      titulo: "Gatinha Luna",
-      local: "Cidade / Estado",
-      meta: 3000,
-      arrecadado: 1500,
-      descricao: "Ajuda para cirurgia.",
-      imagem: earthImage,
-      entidade: "Entidade Z",
-    },
-  ]);
 
   const [campanhaToDelete, setCampanhaToDelete] = useState(null);
 
@@ -53,7 +24,24 @@ function PublishCampaign() {
       const scrollTop = window.scrollY;
       setHideHeroText(scrollTop > 100);
     };
-
+    const fetchCamp = async () => {
+      try {
+        const response = await axios.get(`${BACK_URL}/campanhas`)
+        const camps = response.data
+        const control = []
+        for (let c of camps) {
+          if (c.fk_id_entidade_criadora_campanha === entityId) {
+            control.push(c)
+          }
+        }
+        setCampaigns(control)
+      } catch (err) {
+        console.log(`Erro ao consultar campanhas cadastradas: ${err}`)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchCamp()
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -73,11 +61,21 @@ function PublishCampaign() {
     return isEntity ? publishCamp.title2 : publishCamp.title1
   }
 
-  const handleDelete = (id) => {
-    const updatedCampaigns = userCampaigns.filter((c) => c.id !== id);
-    setUserCampaigns(updatedCampaigns);
-    setCampanhaToDelete(null);
+  const handleDelete = () => {
+
   };
+
+  function getSpinner() {
+    return (
+      <>
+        <Container className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <Spinner animation="grow" role="status">
+              <span className="visually-hidden">Carregando...</span>
+          </Spinner>
+        </Container>
+      </>
+    )
+  }
 
   return (
     <>
@@ -110,8 +108,8 @@ function PublishCampaign() {
         </div>
       </section>
 
-      <CampaignsList withDelete={true}/>
-
+      {isLoading ? getSpinner() : <CampaignsList campaigns={campaigns} withDelete={true} withHelp={false}/>}
+      
       <ScrollTopButton />
 
       {/* Modal para confirmar exclusão de cmp*/}
@@ -119,8 +117,7 @@ function PublishCampaign() {
         <div className="delete-modal-overlay">
           <div className="delete-modal">
             <p className="fw-bold mb-3">
-              Tem certeza que quer apagar a campanha "{campanhaToDelete.titulo}
-              "?
+              Tem certeza de que deseja excluir a campanha ${}
             </p>
             <div className="d-flex justify-content-between">
               <Button

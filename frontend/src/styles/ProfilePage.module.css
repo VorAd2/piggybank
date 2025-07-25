@@ -1,0 +1,6 @@
+.campaign {
+    transition: border 0.05s ease;
+}
+.campaign:hover {
+    border: 1px solid var(--blue-color1) !important;
+}
