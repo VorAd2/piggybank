@@ -10,9 +10,7 @@ const BACK_URL = import.meta.env.VITE_BACK_URL
 
 function Profile() {
   const {
-    username,
     bio,
-    email,
     interests,
     notifications,
     activity,
@@ -306,7 +304,7 @@ function Profile() {
                   <input
                     type="text"
                     className="form-control"
-                    defaultValue={username}
+                    defaultValue={profileData.nome_usuario}
                   />
                 </div>
                 <div className="mb-3">
@@ -314,7 +312,7 @@ function Profile() {
                   <input
                     type="email"
                     className="form-control"
-                    defaultValue={email}
+                    defaultValue={profileData.email_usuario}
                   />
                 </div>
                 <div className="mb-3">

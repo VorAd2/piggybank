@@ -28,7 +28,7 @@ function Campaigns() {
         const response = await axios.get(`${BACK_URL}/campanhas`)
         setCampaignsList(response.data)
         setLoading(false)
-        console.log(`response.data: ${JSON.stringify(campaignsList, null, 2)}`)
+        console.log(`response.data: ${JSON.stringify(response.data, null, 2)}`)
       } catch (err) {
         console.warn(`Erro no fetch de campanhas: ${err.message}`)
       }

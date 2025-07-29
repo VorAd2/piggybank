@@ -22,9 +22,9 @@ function CampaignInfo() {
     const withHelp = location.state?.withHelp
     const campaignId = withHelp ? location.state?.data.id_campanha_apoiada : location.state?.data.id
 
-    const [campaign, setCampaign] = useState({});
+    const [campaign, setCampaign] = useState(location.state?.data);
     const profileData = JSON.parse(localStorage.getItem('UserData'))
-    const [showDonationModal, setShow] = useState(false)
+    const [showDonationModal, setShowDonationModal] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const navigate = useNavigate()
 
@@ -32,6 +32,8 @@ function CampaignInfo() {
         Math.min(100, ((campaign.recebido / campaign.meta) * 100).toFixed(2));
 
     function getPrincipalPanel() {
+        console.log(`campaignId: ${campaignId}`)
+        console.log(`campanha: ${JSON.stringify(campaign, null, 2)}`)
         return (
             <div className="principalInfoPanel d-flex flex-column gap-1 justify-content-start align-items-start">
                 <div className="progress-and-text mt-2">
@@ -83,7 +85,7 @@ function CampaignInfo() {
 
     const handleClick = () => {
         if (profileData) {
-            setShow(true)
+            setShowDonationModal(true)
         } else {
             navigate('/login/usuario')
         }
@@ -151,7 +153,7 @@ function CampaignInfo() {
                 </Row>
             </Container>
 
-        <DonationModal show={showDonationModal} campaignId={campaign.id} donatorId={profileData?.id_usuario} onHide={() => setShow(false)}/>
+        <DonationModal show={showDonationModal} campaignId={campaign.id} donatorId={profileData?.id_usuario} onHide={() => setShowDonationModal(false)}/>
         </>
     )
 }

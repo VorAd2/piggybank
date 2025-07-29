@@ -2,7 +2,7 @@
 import CampaignCard from "./CampaignCard";
 import { useRef, useEffect } from "react";
 
-export default function CampaignsList({campaigns, withDelete = false, withHelp}) {
+export default function CampaignsList({campaigns, withDelete = false, withHelp = true}) {
   const listRef = useRef(null);
   
   const handleScroll = () => {
