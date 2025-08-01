@@ -1,6 +1,6 @@
 # PiggyBank 🐖
 ## Criação e gestão de campanhas solidárias de arrecadação online 
-Link para visualização dos protótipos: <a href="https://www.figma.com/design/nTaXkv3oerX33UbuH3OLLc/piggybank?t=0z9S8ywLz6Aq44LJ-0" target="_blank"> Figma</a>
+Link para visualização dos protótipos: [Figma](https://www.figma.com/design/nTaXkv3oerX33UbuH3OLLc/piggybank?t=0z9S8ywLz6Aq44LJ-0)
 
 
 ### Tecnologias utilizadas 
